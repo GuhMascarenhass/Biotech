@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BioTech Dashboard</title>
+    <script src="{{ url_for('static', filename='js/body.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" />
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- Sidebar -->
+      <div id="sidebar" class="sidebar">
+        <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+        <h2 class="logo-text">BioTech</h2>
+        <div class="nav">
+          <a href="{{ url_for('home') }}"><span class="icon">📊</span><span class="text">Dashboard</span></a>
+          <a href="{{ url_for('analise') }}"><span class="icon">🧪</span><span class="text">Análise</span></a>
+          <a href="{{ url_for('config') }}"><span class="icon">⚙️</span><span class="text">Configuração</span></a>
+        </div>
+      </div>
+
+      <!-- Conteúdo principal -->
+      <div class="main-content">
+        {% block body %}
+        
+        {% endblock %}
+      </div>
+    </div>
+
+    <script>
+      const ctxBar = document.getElementById('barChart')
+      if (ctxBar) {
+        new Chart(ctxBar, {
+          type: 'bar',
+          data: {
+            labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
+            datasets: [
+              {
+                label: 'Análises',
+                data: [12, 19, 8, 15, 10, 6, 9],
+                backgroundColor: '#1abc9c'
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false } }
+          }
+        });
+      }
+
+      const ctxPie = document.getElementById('pieChart')
+      if (ctxPie) {
+        new Chart(ctxPie, {
+          type: 'pie',
+          data: {
+            labels: ['Giardia', 'Entamoeba', 'Plasmodium', 'Outros'],
+            datasets: [
+              {
+                label: 'Tipos',
+                data: [45, 25, 20, 10],
+                backgroundColor: ['#1abc9c', '#3498db', '#9b59b6', '#f39c12']
+              }
+            ]
+          },
+          options: {
+            responsive: true
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

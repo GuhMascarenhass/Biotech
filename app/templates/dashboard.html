@@ -1,0 +1,68 @@
+{%extends "baseModel.html"%}
+
+<!DOCTYPE html>
+
+
+{% block body %}
+  <div class="main">
+      <!-- Dashboard -->
+      <div id="dashboard" class="active">
+        <div class="header2"><h2>Dashboard Geral</h2></div>
+        <div class="charts">
+          <div class="card">
+            <h4>Taxa de Análises por Dia</h4>
+            <canvas id="barChart"></canvas>
+          </div>
+          <div class="card">
+            <h4>Tipos Mais Detectados</h4>
+            <canvas id="pieChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resultados (se desejar mostrar fora da aba de Análise) -->
+      <div class="resultados" id="analise" style="display: none;">
+        <h3>Resultado da Análise</h3>
+        <p><strong>Tipo de Parasita:</strong> Giardia Lamblia</p>
+        <p><strong>Taxa de Precisão:</strong> 93.8%</p>
+        <p><strong>Status:</strong> Parasita detectado</p>
+      </div>
+    </div>
+
+{% endblock body %}
+ 
+  <script>
+    // Gráficos
+    const ctxBar = document.getElementById('barChart');
+    new Chart(ctxBar, {
+      type: 'bar',
+      data: {
+        labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
+        datasets: [{
+          label: 'Análises',
+          data: [12, 19, 8, 15, 10, 6, 9],
+          backgroundColor: '#1abc9c'
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } }
+      }
+    });
+
+    const ctxPie = document.getElementById('pieChart');
+    new Chart(ctxPie, {
+      type: 'pie',
+      data: {
+        labels: ['Giardia', 'Entamoeba', 'Plasmodium', 'Outros'],
+        datasets: [{
+          label: 'Tipos',
+          data: [45, 25, 20, 10],
+          backgroundColor: ['#1abc9c', '#3498db', '#9b59b6', '#f39c12']
+        }]
+      },
+      options: {
+        responsive: true
+      }
+    });
+  </script>
