@@ -1,51 +1,49 @@
-<!DOCTYPE html>
+{% extends "baseModel.html" %}
 
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Analise de Parasitas</title>
+{% block body   %}
 
-  <link rel="stylesheet" href="style.css">
-  
-</head>
-<body>
-  <script src="body.js"></script>
-
-  <div class="sidebar">
-    <h2>BioTech</h2>
-    <div class="nav">
-      <a onclick="showTab('dashboard')">📊 Dashboard</a>
-      <a onclick="showTab('analise')">🧪 Análise</a>
-      <a onclick="showTab('config')">⚙️ Configuração</a>
-    </div>
-  </div>
-
-  <div class="main">
+ <div class="main">
     <div class="header2">
       <h1>Dashboard de Detecção</h1>
     </div>
+  <div class="image-section">
+    <h3>Upload da Lâmina</h3>
+    <!-- Botão estilizado -->
+    <label for="file-upload">Escolher Arquivo</label>
+    <input id="file-upload" type="file" accept="image/*" onchange="previewImage(event)" />
+    <img id="preview" src=""  />
+    <button onclick="enviarImagem()">Enviar</button>
+  </div>
+
 
     <div class="cards">
       <div class="card">
         <h3>Imagens Analisadas</h3>
-        <p>12</p>
+
+        <img id="card-image" src="" alt="Imagem" style="display: none;">
+
+
       </div>
+
       <div class="card">
         <h3>Parasitas Detectados</h3>
-        <p>17</p>
+        <img src="" alt="">
+
       </div>
+
+      <div class="card">
+        <h3>Tipo de Parasita</h3>
+
+        </div>
       <div class="card">
         <h3>Precisão Média</h3>
         <p>92.4%</p>
       </div>
     </div>
 
-    <div class="image-section">
-      <h3>Upload da Lâmina</h3>
-      <input type="file" accept="image/*" onchange="previewImage(event)" />
-      <img id="preview" src="" alt="Pré-visualização" />
-    </div>
+
   </div>
-</body>
-</html>
+
+
+
+{% endblock body %}
