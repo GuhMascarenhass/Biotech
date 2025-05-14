@@ -25,6 +25,12 @@ body {
   flex-shrink: 0;
 }
 
+#parasitas-detectados img{
+  display: none;
+  opacity: 0;
+}
+
+
 .sidebar.collapsed {
   width: 60px;
 }
@@ -47,6 +53,19 @@ body {
   margin-bottom: 70px;
 }
 
+.sidebar a{
+  display: block;
+  color: white;
+  padding: 12px 0;
+  text-decoration: none;
+  font-size: 15px;
+}
+
+.sidebar a:hover {
+  background-color: #34495E;
+  border-radius: 10px;
+}
+
 .toggle-btn {
   background-color: transparent;
   color: white;
@@ -64,6 +83,12 @@ body {
   gap: 20px;
 }
 
+.nav ul{
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+  padding-left: 0;
+}
 .nav a {
   display: flex;
   align-items: center;
@@ -93,10 +118,11 @@ body {
 
 /* Conteúdo principal */
 .main-content {
-  flex-grow: 1;
-  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background-color: #f4f4f4;
-  width: auto;
+  width: 100%;
 }
 
 /* Cabeçalhos */
@@ -105,17 +131,9 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 30px;
-}
-
-.header2 {
   display: flex;
-  margin-bottom: 80px;
-  width: 800px;
-  text-align: center;
-  justify-content: center;
-  color: #2C3E50;
+  justify-content: flex-start;
 }
-
 /* Cartões */
 .cards {
   display: flex;
@@ -124,11 +142,14 @@ body {
 }
 
 .card {
-  flex: 1;
   padding: 20px;
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  height: 400px;
+  width: 300px;
+  
+
 }
 
 .card h3 {
@@ -136,9 +157,24 @@ body {
   margin-bottom: 10px;
 }
 
+.card canvas {
+  display: flex;
+  justify-content: center;
+}
+
+
+button{
+    background-color: #1FA8DE;
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
 /* Seções de imagem e resultados */
-.image-section,
-.resultados {
+.image-section{
   background-color: white;
   padding: 20px;
   border-radius: 8px;
@@ -170,6 +206,26 @@ img {
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
 }
 
+ #preview {
+  display: none;
+  max-width: 100%;
+  margin-top: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.config-section { 
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+}
+
 .config-item {
   display: flex;
   justify-content: space-between;
@@ -178,6 +234,7 @@ img {
 
 .config-item label {
   font-weight: 600;
+  color: grey;
 }
 
 .config-item select,
@@ -195,4 +252,254 @@ img {
 
 .config-item a:hover {
   text-decoration: underline;
+}
+
+/* Oculta o botão padrão */
+.image-section input[type="file"] {
+  display: none;
+}
+
+/* Estiliza o botão personalizado */
+.image-section label {
+  display: inline-block;
+  background-color: #1FA8DE; /* Cor de fundo */
+  color: white; /* Cor do texto */
+  padding: 8px 18px; /* Espaçamento interno */
+  font-size: 16px; /* Tamanho da fonte */
+  border: none; /* Remove bordas */
+  border-radius: 5px; /* Bordas arredondadas */
+  cursor: pointer; /* Mostra o cursor de "mão" */
+  transition: background-color 0.3s ease; /* Animação suave */
+}
+
+
+/* Estilização do carrossel */
+@keyframes tonext {
+  75% {
+    left: 0;
+  }
+  95% {
+    left: 100%;
+  }
+  98% {
+    left: 100%;
+  }
+  99% {
+    left: 0;
+  }
+}
+
+@keyframes tostart {
+  75% {
+    left: 0;
+  }
+  95% {
+    left: -300%;
+  }
+  98% {
+    left: -300%;
+  }
+  99% {
+    left: 0;
+  }
+}
+
+@keyframes snap {
+  96% {
+    scroll-snap-align: center;
+  }
+  97% {
+    scroll-snap-align: none;
+  }
+  99% {
+    scroll-snap-align: none;
+  }
+  100% {
+    scroll-snap-align: center;
+  }
+}
+
+
+*::-webkit-scrollbar {
+  width: 0;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: transparent;
+  border: none;
+}
+
+* {
+  -ms-overflow-style: none;
+}
+
+ol, li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.carousel {
+  position: relative;
+  padding-top: 50%;
+  filter: drop-shadow(0 0 10px #0003);
+  perspective: 100px;
+}
+
+.carousel__viewport {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  overflow-x: scroll;
+  counter-reset: item;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+}
+
+.carousel__slide {
+  position: relative;
+  flex: 0 0 100%;
+  width: 0px;
+  background-image: url("../img/artef_taenia_08.jpg");
+  counter-increment: item;
+}
+
+.carousel__slide:nth-child(even) {
+  background-color: #99f;
+}
+
+.carousel__slide:before {
+  content: counter(item);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate3d(-50%,-40%,70px);
+  color: #fff;
+  font-size: 2em;
+  
+}
+
+.carousel__snapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  scroll-snap-align: center;
+}
+
+@media (hover: hover) {
+  .carousel__snapper {
+    animation-name: tonext, snap;
+    animation-timing-function: ease;
+    animation-duration: 4s;
+    animation-iteration-count: infinite;
+  }
+
+  .carousel__slide:last-child .carousel__snapper {
+    animation-name: tostart, snap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carousel__snapper {
+    animation-name: none;
+  }
+}
+
+.carousel:hover .carousel__snapper,
+.carousel:focus-within .carousel__snapper {
+  animation-name: none;
+}
+
+.carousel__navigation {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  text-align: center;
+}
+
+.carousel__navigation-list,
+.carousel__navigation-item {
+  display: inline-block;
+}
+
+.carousel__navigation-button {
+  
+  width: 1.5rem;
+  height: 1.5rem;
+  background-color: #333;
+  background-clip: content-box;
+  border: 0.25rem solid transparent;
+  border-radius: 50%;
+  font-size: 0;
+  transition: transform 0.1s;
+}
+
+.carousel::before,
+.carousel::after,
+.carousel__prev,
+.carousel__next {
+  position: absolute;
+  top: 0;
+  margin-top: 37.5%;
+  width: 4rem;
+  height: 4rem;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  font-size: 0;
+  outline: 0;
+}
+
+.carousel::before,
+.carousel__prev {
+  left: -1rem;
+}
+
+.carousel::after,
+.carousel__next {
+  right: -1rem;
+}
+
+.carousel::before,
+.carousel::after {
+  content: '';
+  z-index: 1;
+  background-color: #1FA8DE;
+  background-size: 1.5rem 1.5rem;
+  background-repeat: no-repeat;
+  background-position: center center;
+  color: #fff;
+  font-size: 2.5rem;
+  line-height: 4rem;
+  text-align: center;
+  pointer-events: none;
+ 
+}
+
+.carousel::before {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='0,50 80,100 80,0' fill='%23fff'/%3E%3C/svg%3E");
+}
+
+.carousel::after {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='100,50 20,100 20,0' fill='%23fff'/%3E%3C/svg%3E");
+}
+
+/* Estilização da pag Sobre Nós */
+
+.Titulo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-family: Serifada;
 }

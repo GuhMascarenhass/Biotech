@@ -1,49 +1,50 @@
 {% extends "baseModel.html" %}
 
-{% block body   %}
-
- <div class="main">
+{% block body %}
+  <div class="main">
     <div class="header2">
       <h1>Dashboard de Detecção</h1>
     </div>
-  <div class="image-section">
-    <h3>Upload da Lâmina</h3>
-    <!-- Botão estilizado -->
-    <label for="file-upload">Escolher Arquivo</label>
-    <input id="file-upload" type="file" accept="image/*" onchange="previewImage(event)" />
-    <img id="preview" src=""  />
-    <button onclick="enviarImagem()">Enviar</button>
-  </div>
 
+    <div class="image-section">
+      <h3>Upload da Lâmina</h3>
+      <!-- Botão estilizado -->
+      <label for="file-upload">Escolher Arquivo</label>
+      <input id="file-upload" type="file" accept="image/*" onchange="previewImage(event)" />
+      <img id="preview" src="" />
+      <button onclick="enviarImagem()">Enviar</button>
+    </div>
 
     <div class="cards">
       <div class="card">
         <h3>Imagens Analisadas</h3>
+        <img src="{{ url_for('static', filename='img/gi1.png') }}" alt="Imagem">
 
-        <img id="card-image" src="" alt="Imagem" style="display: none;">
-
-
+        
       </div>
 
       <div class="card">
         <h3>Parasitas Detectados</h3>
-        <img src="" alt="">
-
+        <img src="{{ url_for('static', filename='img/detectado.png') }}" alt="Imagem">
       </div>
 
       <div class="card">
         <h3>Tipo de Parasita</h3>
+        <p class="#"> Giardia é um gênero de protozoários parasitas anaeróbios flagelados do filo Metamonada que colonizam e se reproduzem no intestino delgado de vários vertebrados, causando a doença giardíase. Seu ciclo de vida alterna entre um trofozoíto nadador e um cisto infeccioso e resistente.</p>
 
-        </div>
+      </div>
+
       <div class="card">
         <h3>Precisão Média</h3>
-        <p>92.4%</p>
+        <p>95.6%</p>
       </div>
     </div>
 
-
+    {% if uploaded_image %}
+    <div class="card">
+      <h3>Imagem Enviada:</h3>
+      <img src="{{ url_for('static', filename='uploads/' ~ uploaded_image) }}" alt="Imagem Enviada">
+    </div>
+    {% endif %}
   </div>
-
-
-
 {% endblock body %}
