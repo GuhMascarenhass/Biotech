@@ -16,8 +16,9 @@ urlpatterns = [
     
     # 3. Dashboard e Relatórios (Lista de resultados salvos no banco)
     # No views.py: return redirect('dashboard_list')
-    path('dashboard/', views.dashboard_list, name='dashboard_list'),]
+    path('dashboard/', views.dashboard_list, name='dashboard_list'),
 
+    path('salvar-amostra/', views.salvar_amostra_sessao, name='salvar_amostra'),]
 
 # --- CONFIGURAÇÃO DE ARQUIVOS DE MÍDIA E ESTÁTICOS ---
 # Isso permite que o Django exiba as imagens que a IA salvou durante o desenvolvimento

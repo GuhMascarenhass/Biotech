@@ -6,10 +6,25 @@ from rest_framework.response import Response
 from .models import Amostras
 from .serializers import AmostraSerializer
 import json
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework import generics
+
+
+
+class AmostraCreateView(generics.CreateAPIView):
+    queryset = Amostras.objects.all()
+    serializer_class = AmostraSerializer
+    # Estes parsers dizem ao DRF para aceitar dados de formulário com arquivos
+    parser_classes = (MultiPartParser, FormParser)
+
+def get_queryset(self):
+    # O Django vai buscar apenas registros onde a coluna paciente_id não seja NULL
+    return Amostras.objects.filter(Paciente__isnull=False)
+      
 
 @api_view(['GET','POST','DELETE','PUT'])
 def amostras_manager (request):
-
+   
     #FUNÇÃO GET
     if request.method == 'GET':
         amostras_id = request.GET.get('id')
@@ -23,7 +38,7 @@ def amostras_manager (request):
                 return Response(status=status.HTTP_404_NOT_FOUND)
 
         else:
-            amostras = Amostras.objects.all()
+            amostras = Amostras.objects.filter(Paciente__isnull=False)
             serializer = AmostraSerializer(amostras, many=True)
             return Response(serializer.data)
         
@@ -70,20 +85,5 @@ def amostras_manager (request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-
-        #amostras = Amostras.objects.all()
-      #  serializer = AmostraSerializer(amostras, many=True)
-        #return Response(serializer.data)
-    #return Response(status=status.HTTP_404_NOT_REQUEST)
-
-#@api_view(['GET'])
-#def get_by_nome(request, nome):
-
- #   try:
-  #      amostras = Amostras.objects.get(paciente=nome)
-   # except :
-    #    return Response(status=status.HTTP_404_NOT_FOUND)
-   # if request.method == 'GET':
-    #    serializer = AmostraSerializer(amostras)
-     #   return Response(serializer.data)
+    
 
