@@ -4,7 +4,10 @@ from django.http import  HttpResponse, JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Analise
+from .models import Amostras
 from .serializers import AnaliseSerializer
+from django.core.files.base import ContentFile
+import io
 import json
 
 @api_view(['GET','POST','DELETE','PUT'])
@@ -12,6 +15,7 @@ def analise_manager (request):
 
     #FUNÇÃO GET
     if request.method == 'GET':
+        
         analise_id = request.GET.get('id')
 
         if analise_id:
@@ -26,14 +30,19 @@ def analise_manager (request):
             analise = Analise.objects.all()
             serializer = AnaliseSerializer(analise, many=True)
             return Response(serializer.data)
-        
+
+      
 # FUNÇÃO POST
     if request.method == 'POST':
-
-        nova_analise = request.data
-        serializer = AnaliseSerializer(data=nova_analise)
+        serializer = AnaliseSerializer(data=request.data)
 
         if serializer.is_valid():
+            # Rejeita se não tiver imagem
+            if not request.FILES.get('imagem'):
+                return Response(
+                    {'erro': 'Imagem obrigatória'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -50,7 +59,7 @@ def analise_manager (request):
         except:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        serializer = AnaliseSerializer(updated_analise, data=request.data)
+        serializer = AnaliseSerializer(updated_analise, data=request.data, partial = True)
 
         if serializer.is_valid():
             serializer.save()
@@ -68,7 +77,6 @@ def analise_manager (request):
             return Response(status=status.HTTP_202_ACCEPTED)
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-
 
 
 

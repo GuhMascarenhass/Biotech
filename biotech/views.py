@@ -2,9 +2,7 @@ import os
 import io
 import csv
 import base64
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
+import requests
 from PIL import Image
 from xhtml2pdf import pisa
 from django.shortcuts import render, redirect
@@ -16,7 +14,8 @@ from django.core.files.base import ContentFile
 from django.http import JsonResponse
 from .models import AnaliseParasita
 from ultralytics import YOLO 
-
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 # Carrega o modelo uma única vez
 MODEL_PATH = os.path.join(settings.BASE_DIR, 'best.pt')
@@ -63,9 +62,10 @@ def analises(request):
             request.session['images_preview'] = preview_list
             return redirect('analises')
 
-        # 2. Analisar com IA e salvar no Banco
+        # 2. Analisar com IA e enviar para API
         elif action == 'analisar':
             if 'images_preview' in request.session and model:
+                amostra_id = request.POST.get('amostra_id')
                 for img_preview in request.session['images_preview']:
                     preview_path = os.path.join(preview_dir, img_preview['path'])
                     
@@ -73,7 +73,6 @@ def analises(request):
                         results = model(preview_path, conf=0.25)
                         r = results[0]
 
-                        # Lógica Híbrida (OBB ou Boxes)
                         deteccoes = r.boxes if (r.boxes is not None) else r.obb
                         label_ia, conf_val = "Negativo", 0
                         
@@ -81,22 +80,30 @@ def analises(request):
                             label_ia = r.names[int(deteccoes.cls[0])]
                             conf_val = int(deteccoes.conf[0] * 100)
 
-                        # Plotar e salvar imagem
                         im_bgr = r.plot()
                         im_rgb = Image.fromarray(im_bgr[..., ::-1])
                         
-                        analise = AnaliseParasita(
-                            nome_arquivo=img_preview['name'],
-                            parasita_detectado=label_ia,
-                            confianca=conf_val
-                        )
-
                         buffer = io.BytesIO()
                         im_rgb.save(buffer, format="JPEG")
-                        nome_final = f"res_{img_preview['path']}"
-                        analise.imagem_resultado.save(nome_final, ContentFile(buffer.getvalue()), save=True)
-                        
-                        os.remove(preview_path) # Limpa o preview
+                        # Envia para a API
+                    buffer.seek(0)
+                    nome_final = f"res_{img_preview['path']}"
+                    api_response = requests.post(
+                        'http://127.0.0.1:8001/analise/',
+                        data={
+                            'parasita_detectado': label_ia,
+                            'confianca': conf_val,
+                            'status': 'CONCL',
+                            'lamina' : amostra_id,
+                        },
+                        files={
+                            'imagem': (nome_final, buffer, 'image/jpeg')
+                        }
+                    )
+
+                    if api_response.status_code != 201:
+                        print(f"Erro ao salvar na API: {api_response.json()}")
+                        os.remove(preview_path)
                 
                 del request.session['images_preview']
                 return redirect('dashboard_list')
@@ -107,33 +114,53 @@ def analises(request):
             return redirect('analises')
 
     return render(request, "biotech/analises.html", context)
-
 def dashboard_list(request):
-    queryset = AnaliseParasita.objects.all().order_by('-data_analise')
+    # Busca os dados da API
+    api_response = requests.get('http://127.0.0.1:8001/analise/')
+    dados = api_response.json()  # dados é uma lista de dicionários
 
-    # Filtros
+    # Filtros (feitos em Python, não no banco)
     parasita = request.GET.get('parasita')
     data_inicio = request.GET.get('data_inicio')
     conf_min = request.GET.get('confianca')
 
-    if parasita: queryset = queryset.filter(parasita_detectado__icontains=parasita)
-    if data_inicio: queryset = queryset.filter(data_analise__date=data_inicio)
-    if conf_min: queryset = queryset.filter(confianca__gte=conf_min)
+    if parasita:
+        dados = [d for d in dados if parasita.lower() in (d.get('parasita_detectado') or '').lower()]
+    if data_inicio:
+        dados = [d for d in dados if str(d.get('data_analise', '')).startswith(data_inicio)]
+    if conf_min:
+        dados = [d for d in dados if (d.get('confianca') or 0) >= float(conf_min)]
 
-    # Exportações
+    # Exportação CSV
     if request.GET.get('export') == 'csv':
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="relatorio.csv"'
         writer = csv.writer(response)
-        writer.writerow(['ID', 'Data', 'Parasita', 'Confiança (%)'])
-        for item in queryset:
-            writer.writerow([item.id, item.data_analise, item.parasita_detectado, item.confianca])
+        writer.writerow(['ID', 'ID Amostra', 'Paciente', 'Data', 'Parasita', 'Confiança (%)'])
+        for item in dados:
+            writer.writerow([
+                item.get('id'),
+                item.get('lamina'),
+                item.get('paciente', 'Não Identificado'),
+                item.get('data_analise'),
+                item.get('parasita_detectado'),
+                item.get('confianca'),
+            ])
         return response
 
+    # Exportação PDF
     if request.GET.get('export') == 'pdf':
-        html = render_to_string('biotech/pdf_template.html', {'analises': queryset})
+        html = render_to_string('biotech/pdf_template.html', {'analises': dados})
         response = HttpResponse(content_type='application/pdf')
         pisa.CreatePDF(html, dest=response)
         return response
 
-    return render(request, 'biotech/dashboard_list.html', {'resultados': queryset})
+    return render(request, 'biotech/dashboard_list.html', {'resultados': dados})
+
+@csrf_exempt
+def salvar_amostra_sessao(request):
+    if request.method == 'POST':
+        dados = json.loads(request.body)
+        request.session['ultima_amostra_id'] = dados.get('amostra_id')
+        return JsonResponse({'ok': True})
+    return JsonResponse({'erro': 'Método inválido'}, status=400)
